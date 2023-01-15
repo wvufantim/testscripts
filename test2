@@ -1,69 +1,59 @@
 #!/bin/bash
-
 while true; do
-    # function to install apt programs
-    install_programs() {
-        read -p "Enter programs to install (separated by spaces): " programs_to_install
-        for program in $programs_to_install; do
-            if ! dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
-                if ! apt-cache search "$program" | grep -q "$program"; then
-                    echo "Program not found. Here are some suggestions:"
-                    apt-cache search "$program" | awk '{print $1}' | tail -n +2
-                else
-                    sudo apt-get install -y "$program"
-                fi
+  echo "1. Install Programs"
+  echo "2. Uninstall Programs"
+  echo "3. Install Flatpaks"
+  echo "4. Uninstall Flatpaks"
+  echo "5. Exit"
+  read -p "Please select an option: " option
+  case $option in
+    1)
+      read -p "Enter programs to install (separated by spaces): " programs_to_install
+      for program in $programs_to_install; do
+        if ! dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
+            if ! apt-cache search "$program" | grep -q "$program"; then
+                echo "Program not found. Here are some suggestions:"
+                apt-cache search "$program" | awk '{print $1}' | tail -n +2
+            else
+                sudo apt-get install -y "$program"
             fi
-        done
-    }
-
-    # function to uninstall apt programs
-    uninstall_programs() {
-        read -p "Enter programs to uninstall (separated by spaces): " programs_to_uninstall
-        for program in $programs_to_uninstall; do
-            if dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
-                sudo apt-get remove -y "$program"
+        fi
+      done
+    ;;
+    2)
+      read -p "Enter programs to uninstall (separated by spaces): " programs_to_uninstall
+      for program in $programs_to_uninstall; do
+        if dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
+            sudo apt-get remove -y "$program"
+        fi
+      done
+    ;;
+    3)
+      read -p "Enter flatpaks to install (separated by spaces): " flatpaks_to_install
+      for flatpak in $flatpaks_to_install; do
+        if ! flatpak list --app --columns=application | grep -q "$flatpak"; then
+            if ! flatpak search "$flatpak" | grep -q "$flatpak"; then
+                echo "Flatpak not found. Here are some suggestions:"
+                flatpak search "$flatpak" | awk '{print $1}' | tail -n +2
+            else
+                flatpak install flathub "$flatpak"
             fi
-        done
-    }
-
-# function to install flatpaks
-install_flatpaks() {
-        read -p "Enter flatpaks to install (separated by spaces): " flatpaks_to_install
-        for flatpak in $flatpaks_to_install; do
-            if ! flatpak list --app --columns=application | grep -q "$flatpak"; then
-                if ! flatpak search "$flatpak" | grep -q "$flatpak"; then
-                    echo "Flatpak not found. Here are some suggestions:"
-                    flatpak search "$flatpak" | awk '{print $1}' | tail -n +2
-                else
-                    flatpak install flathub "$flatpak"
-                fi
-            fi
-        done
-    }
-
-    # function to uninstall flatpaks
-    uninstall_flatpaks() {
-        read -p "Enter flatpaks to uninstall (separated by spaces): " flatpaks_to_uninstall
-        for flatpak in $flatpaks_to_uninstall; do
-            if flatpak list --app --columns=application | grep -q "$flatpak"; then
-                flatpak uninstall "$flatpak"
-            fi
-        done
-    }
-
-    echo "1. Install apt programs"
-    echo "2. Uninstall apt programs"
-    echo "3. Install Flatpaks"
-    echo "4. Uninstall Flatpaks"
-    echo "5. Exit"
-    read -p "Please select an option: " option
-
-    case $option in
-        1) install_programs;;
-        2) uninstall_programs;;
-        3) install_flatpaks;;
-        4) uninstall_flatpaks;;
-        5) exit;;
-        *) echo "Invalid option";;
-    esac
+        fi
+      done
+    ;;
+    4)
+      read -p "Enter flatpaks to uninstall (separated by spaces): " flatpaks_to_uninstall
+      for flatpak in $flatpaks_to_uninstall; do
+        if flatpak list --app --columns=application | grep -q "$flatpak"; then
+            flatpak uninstall "$flatpak"
+        fi
+      done
+    ;;
+    5)
+      exit
+    ;;
+    *)
+      echo "Invalid option"
+    ;;
+  esac
 done
