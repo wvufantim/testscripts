@@ -1,59 +1,66 @@
 #!/bin/bash
+
+# Install fzf if it's not already installed
+if ! command -v fzf > /dev/null; then
+    echo "fzf is not installed, installing it now..."
+    sudo apt install fzf
+fi
+
 while true; do
-  echo "1. Install Programs"
-  echo "2. Uninstall Programs"
-  echo "3. Install Flatpaks"
-  echo "4. Uninstall Flatpaks"
-  echo "5. Exit"
-  read -p "Please select an option: " option
-  case $option in
-    1)
-      read -p "Enter programs to install (separated by spaces): " programs_to_install
-      for program in $programs_to_install; do
-        if ! dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
-            if ! apt-cache search "$program" | grep -q "$program"; then
-                echo "Program not found. Here are some suggestions:"
-                apt-cache search "$program" | awk '{print $1}' | tail -n +2
-            else
-                sudo apt-get install -y "$program"
-            fi
-        fi
-      done
-    ;;
-    2)
-      read -p "Enter programs to uninstall (separated by spaces): " programs_to_uninstall
-      for program in $programs_to_uninstall; do
-        if dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
-            sudo apt-get remove -y "$program"
-        fi
-      done
-    ;;
-    3)
-      read -p "Enter flatpaks to install (separated by spaces): " flatpaks_to_install
-      for flatpak in $flatpaks_to_install; do
-        if ! flatpak list --app --columns=application | grep -q "$flatpak"; then
-            if ! flatpak search "$flatpak" | grep -q "$flatpak"; then
-                echo "Flatpak not found. Here are some suggestions:"
-                flatpak search "$flatpak" | awk '{print $1}' | tail -n +2
-            else
-                flatpak install flathub "$flatpak"
-            fi
-        fi
-      done
-    ;;
-    4)
-      read -p "Enter flatpaks to uninstall (separated by spaces): " flatpaks_to_uninstall
-      for flatpak in $flatpaks_to_uninstall; do
-        if flatpak list --app --columns=application | grep -q "$flatpak"; then
-            flatpak uninstall "$flatpak"
-        fi
-      done
-    ;;
-    5)
-      exit
-    ;;
-    *)
-      echo "Invalid option"
-    ;;
-  esac
+    echo "1. Install Programs"
+    echo "2. Uninstall Programs"
+    echo "3. Install Flatpaks"
+    echo "4. Uninstall Flatpaks"
+    echo "5. Exit"
+    read -p "Please select an option: " option
+    case $option in
+        1)
+            read -p "Enter programs to install (separated by spaces): " programs_to_install
+            for program in $programs_to_install; do
+                if ! dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
+                    if ! apt-cache search "$program" | grep -q "$program"; then
+                        echo "Program not found. Here are some suggestions:"
+                        apt-cache search "$program" | fzf -m | awk '{print $1}'
+                    else
+                        sudo apt-get install -y "$program"
+                    fi
+                fi
+            done
+            ;;
+        2)
+            read -p "Enter programs to uninstall (separated by spaces): " programs_to_uninstall
+            for program in $programs_to_uninstall; do
+                if dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
+                    sudo apt-get remove -y "$program"
+                fi
+            done
+            ;;
+        3)
+            read -p "Enter flatpaks to install (separated by spaces): " flatpaks_to_install
+            for flatpak in $flatpaks_to_install; do
+                if ! flatpak list --app --columns=application | grep -q "$flatpak"; then
+                    if ! flatpak search "$flatpak" | grep -q "$flatpak"; then
+                        echo "Flatpak not found. Here are some suggestions:"
+                        flatpak search "$flatpak" | fzf -m | awk '{print $1}'
+                    else
+                        flatpak install flathub "$flatpak"
+                    fi
+                fi
+            done
+            ;;
+        4)
+            read -p "Enter flatpaks to uninstall (separated by spaces): " flatpaks_to_uninstall
+            for flatpak in $flatpaks_to_uninstall; do
+                if flatpak list --app --columns=application | grep -q "$flatpak"; then
+                    flatpak uninstall "$flatpak"
+                fi
+            done
+            ;;
+        5)
+            exit
+            ;;
+        *)
+            echo "Invalid option"
+            ;;
+    esac
 done
