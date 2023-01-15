@@ -1,0 +1,40 @@
+install_flatpaks() {
+        read -p "Enter flatpaks to install (separated by spaces): " flatpaks_to_install
+        for flatpak in $flatpaks_to_install; do
+            if ! flatpak list --app --columns=application | grep -q "$flatpak"; then
+                if ! flatpak search "$flatpak" | grep -q "$flatpak"; then
+                    echo "Flatpak not found. Here are some suggestions:"
+                    flatpak search "$flatpak" | awk '{print $1}' | tail -n +2
+                else
+                    flatpak install flathub "$flatpak"
+                fi
+            fi
+        done
+    }
+
+    # function to uninstall flatpaks
+    uninstall_flatpaks() {
+        read -p "Enter flatpaks to uninstall (separated by spaces): " flatpaks_to_uninstall
+        for flatpak in $flatpaks_to_uninstall; do
+            if flatpak list --app --columns=application | grep -q "$flatpak"; then
+                flatpak uninstall "$flatpak"
+            fi
+        done
+    }
+
+    echo "1. Install apt programs"
+    echo "2. Uninstall apt programs"
+    echo "3. Install Flatpaks"
+    echo "4. Uninstall Flatpaks"
+    echo "5. Exit"
+    read -p "Please select an option: " option
+
+    case $option in
+        1) install_programs;;
+        2) uninstall_programs;;
+        3) install_flatpaks;;
+        4) uninstall_flatpaks;;
+        5) exit;;
+        *) echo "Invalid option";;
+    esac
+done
