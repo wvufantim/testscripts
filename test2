@@ -6,6 +6,11 @@ if ! command -v nala > /dev/null; then
     sudo apt-get install -y nala
 fi
 
+# Create aliases for nala
+echo "alias apt='nala'" >> ~/.bashrc
+echo "alias apt-get='nala'" >> ~/.bashrc
+source ~/.bashrc
+
 while true; do
     echo "1. Install Programs"
     echo "2. Uninstall Programs"
@@ -18,7 +23,7 @@ while true; do
             read -p "Enter programs to install (separated by spaces): " programs_to_install
             for program in $programs_to_install; do
                 if ! dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
-                    sudo nala install "$program"
+                    nala install "$program"
                 fi
             done
             ;;
@@ -29,4 +34,28 @@ while true; do
                     sudo nala remove "$program"
                 fi
             done
-           
+            ;;
+        3)
+            read -p "Enter flatpaks to install (separated by spaces): " flatpaks_to_install
+            for flatpak in $flatpaks_to_install; do
+                if ! flatpak list --app --columns=application | grep -q "$flatpak"; then
+                    flatpak install flathub "$flatpak"
+                fi
+            done
+            ;;
+        4)
+            read -p "Enter flatpaks to uninstall (separated by spaces): " flatpaks_to_uninstall
+            for flatpak in $flatpaks_to_uninstall; do
+                if flatpak list --app --columns=application | grep -q "$flatpak"; then
+                    flatpak uninstall "$flatpak"
+                fi
+            done
+            ;;
+        5)
+            exit
+            ;;
+        *)
+            echo "Invalid option"
+            ;;
+    esac
+done
