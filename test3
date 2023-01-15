@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Install nala if it's not already installed
+# Check if nala is already installed. If not, install it.
 if ! command -v nala > /dev/null; then
     echo "nala is not installed, installing it now..."
     sudo apt-get install -y nala
 fi
 
-# Create aliases for nala
+# Create aliases for nala so that it can be used as a replacement for apt and apt-get
 echo "alias apt='nala'" >> ~/.bashrc
 echo "alias apt-get='nala'" >> ~/.bashrc
 source ~/.bashrc
@@ -22,7 +22,9 @@ while true; do
         1)
             read -p "Enter programs to install (separated by spaces): " programs_to_install
             for program in $programs_to_install; do
+                # Check if the program is already installed
                 if ! dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
+                    # If the program is not already installed, install it
                     sudo nala install -y "$program"
                 fi
             done
@@ -30,7 +32,9 @@ while true; do
         2)
             read -p "Enter programs to uninstall (separated by spaces): " programs_to_uninstall
             for program in $programs_to_uninstall; do
+                # Check if the program is already installed
                 if dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
+                    # If the program is already installed, uninstall it
                     sudo nala remove -y "$program"
                 fi
             done
@@ -38,7 +42,9 @@ while true; do
         3)
             read -p "Enter flatpaks to install (separated by spaces): " flatpaks_to_install
             for flatpak in $flatpaks_to_install; do
+                # Check if the flatpak is already installed
                 if ! flatpak list --app --columns=application | grep -q "$flatpak"; then
+                    # If the flatpak is not already installed, install it
                     flatpak install -y flathub "$flatpak"
                 fi
             done
@@ -46,7 +52,9 @@ while true; do
         4)
             read -p "Enter flatpaks to uninstall (separated by spaces): " flatpaks_to_uninstall
             for flatpak in $flatpaks_to_uninstall; do
+                # Check if the flatpak is already installed
                 if flatpak list --app --columns=application | grep -q "$flatpak"; then
+                    # If the flatpak is already installed, uninstall it
                     flatpak uninstall -y "$flatpak"
                 fi
             done
