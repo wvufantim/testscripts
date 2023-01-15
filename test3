@@ -23,7 +23,7 @@ while true; do
             read -p "Enter programs to install (separated by spaces): " programs_to_install
             for program in $programs_to_install; do
                 if ! dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
-                    sudo nala install "$program"
+                    sudo nala install -y "$program"
                 fi
             done
             ;;
@@ -31,7 +31,7 @@ while true; do
             read -p "Enter programs to uninstall (separated by spaces): " programs_to_uninstall
             for program in $programs_to_uninstall; do
                 if dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
-                    sudo nala remove "$program"
+                    sudo nala remove -y "$program"
                 fi
             done
             ;;
@@ -39,7 +39,7 @@ while true; do
             read -p "Enter flatpaks to install (separated by spaces): " flatpaks_to_install
             for flatpak in $flatpaks_to_install; do
                 if ! flatpak list --app --columns=application | grep -q "$flatpak"; then
-                    flatpak install flathub "$flatpak"
+                    flatpak install -y flathub "$flatpak"
                 fi
             done
             ;;
@@ -47,7 +47,7 @@ while true; do
             read -p "Enter flatpaks to uninstall (separated by spaces): " flatpaks_to_uninstall
             for flatpak in $flatpaks_to_uninstall; do
                 if flatpak list --app --columns=application | grep -q "$flatpak"; then
-                    flatpak uninstall "$flatpak"
+                    flatpak uninstall -y "$flatpak"
                 fi
             done
             ;;
