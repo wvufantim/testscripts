@@ -23,7 +23,7 @@ while true; do
             read -p "Enter programs to install (separated by spaces): " programs_to_install
             for program in $programs_to_install; do
                 if ! dpkg-query -W -f='${Status}' "$program" 2>/dev/null | grep -c "ok installed" > /dev/null; then
-                    nala install "$program"
+                    sudo nala install "$program"
                 fi
             done
             ;;
