@@ -1,15 +1,17 @@
 #!/bin/bash
 
-# Create the Programs file if it does not already exist
-mkdir -p /home/$USER/bin
-touch /home/$USER/bin/Programs
-echo "Programs to add:" >> /home/$USER/bin/Programs
-echo "" >> /home/$USER/bin/Programs
-echo "Programs to uninstall:" >> /home/$USER/bin/Programs
-echo "" >> /home/$USER/bin/Programs
-echo "Flatpaks to add:" >> /home/$USER/bin/Programs
-echo "" >> /home/$USER/bin/Programs
-echo "Flatpaks to uninstall:" >> /home/$USER/bin/Programs
+if [[ ! -f /home/$USER/bin/Programs ]]; then
+    # Create the Programs file if it does not already exist
+    mkdir -p /home/$USER/bin
+    touch /home/$USER/bin/Programs
+    echo "Programs to add:" >> /home/$USER/bin/Programs
+    echo "" >> /home/$USER/bin/Programs
+    echo "Programs to uninstall:" >> /home/$USER/bin/Programs
+    echo "" >> /home/$USER/bin/Programs
+    echo "Flatpaks to add:" >> /home/$USER/bin/Programs
+    echo "" >> /home/$USER/bin/Programs
+    echo "Flatpaks to uninstall:" >> /home/$USER/bin/Programs
+fi
 
 # Check if flatpak is already installed. If not, install it.
 if ! command -v flatpak > /dev/null; then
