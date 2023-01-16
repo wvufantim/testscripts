@@ -3,18 +3,36 @@
 # Create the Programs file if it does not already exist
 mkdir -p /home/$USER/bin
 touch /home/$USER/bin/Programs
-echo "Programs:" >> /home/$USER/bin/Programs
+echo "Programs to add:" >> /home/$USER/bin/Programs
 echo "" >> /home/$USER/bin/Programs
-echo "Flatpaks:" >> /home/$USER/bin/Programs
+echo "Programs to uninstall:" >> /home/$USER/bin/Programs
+echo "" >> /home/$USER/bin/Programs
+echo "Flatpaks to add:" >> /home/$USER/bin/Programs
+echo "" >> /home/$USER/bin/Programs
+echo "Flatpaks to uninstall:" >> /home/$USER/bin/Programs
 
-# Install programs listed in the Programs file
+# Check if flatpak is already installed. If not, install it.
+if ! command -v flatpak > /dev/null; then
+    echo "flatpak is not installed, installing it now..."
+    sudo apt-get install -y flatpak
+fi
+
+# Install programs and flatpaks listed in the Programs file
 while read line; do
-    if [[ $line == "Programs:" ]] || [[ $line == "Flatpaks:" ]]; then
+    if [[ $line == "Programs to add:" ]] || [[ $line == "Programs to uninstall:" ]] || [[ $line == "Flatpaks to add:" ]] || [[ $line == "Flatpaks to uninstall:" ]]; then
         continue
     fi
     if [[ $line == *".flatpak"* ]]; then
-        flatpak install -y $line
+        if [[ $line == "-"*".flatpak"* ]]; then
+            flatpak uninstall -y ${line:1}
+        else
+            flatpak install -y $line
+        fi
     else
-        sudo apt-get install -y $line
+        if [[ $line == "-"* ]]; then
+            sudo apt-get remove -y ${line:1}
+        else
+            sudo apt-get install -y $line
+        fi
     fi
 done < /home/$USER/bin/Programs
