@@ -4,19 +4,16 @@ if [[ ! -f /home/$USER/bin/Programs_install.txt ]]; then
     # Create the Programs install file if it does not already exist
     mkdir -p /home/$USER/bin
     touch /home/$USER/bin/Programs_install.txt
-    echo "Programs to install:" >> /home/$USER/bin/Programs_install.txt
 fi
 
 if [[ ! -f /home/$USER/bin/Programs_uninstall.txt ]]; then
     # Create the Programs uninstall file if it does not already exist
     touch /home/$USER/bin/Programs_uninstall.txt
-    echo "Programs to uninstall:" >> /home/$USER/bin/Programs_uninstall.txt
 fi
 
 if [[ ! -f /home/$USER/bin/Flatpaks_install.txt ]]; then
     # Create the Flatpaks install file if it does not already exist
     touch /home/$USER/bin/Flatpaks_install.txt
-    echo "Flatpaks to install:" >> /home/$USER/bin/Flatpaks_install.txt
 fi
 
 # Check if flatpak is already installed. If not, install it.
@@ -27,24 +24,18 @@ fi
 
 # Install programs listed in Programs_install.txt
 while read line; do
-    if [[ $line == "Programs to install:" ]]; then
-        continue
-    fi
     sudo apt-get install -y $line
 done < /home/$USER/bin/Programs_install.txt
 
 # Uninstall programs listed in Programs_uninstall.txt
 while read line; do
-    if [[ $line == "Programs to uninstall:" ]]; then
-        continue
-    fi
     sudo apt-get remove -y $line
 done < /home/$USER/bin/Programs_uninstall.txt
 
 # Install flatpaks listed in Flatpaks_install.txt
 while read line; do
-    if [[ $line == "Flatpaks to install:" ]]; then
-        continue
-    fi
+  if [ -z "$line" ]; then
+    continue
+  fi
     flatpak install -y $line
 done < /home/$USER/bin/Flatpaks_install.txt
