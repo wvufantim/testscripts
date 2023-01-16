@@ -24,11 +24,17 @@ fi
 
 # Install programs listed in Programs_install.txt
 while read line; do
+  if [ -z "$line" ]; then
+    continue
+  fi
     sudo apt-get install -y $line
 done < /home/$USER/bin/Programs_install.txt
 
 # Uninstall programs listed in Programs_uninstall.txt
 while read line; do
+  if [ -z "$line" ]; then
+    continue
+  fi
     sudo apt-get remove -y $line
 done < /home/$USER/bin/Programs_uninstall.txt
 
