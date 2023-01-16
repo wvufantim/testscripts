@@ -1,14 +1,22 @@
 #!/bin/bash
 
-if [[ ! -f /home/$USER/bin/Programs.csv ]]; then
-    # Create the Programs file if it does not already exist
+if [[ ! -f /home/$USER/bin/Programs_install.txt ]]; then
+    # Create the Programs install file if it does not already exist
     mkdir -p /home/$USER/bin
-    touch /home/$USER/bin/Programs.csv
-    echo "Type, Name" >> /home/$USER/bin/Programs.csv
-    echo "Programs, to add" >> /home/$USER/bin/Programs.csv
-    echo "Programs, to remove" >> /home/$USER/bin/Programs.csv
-    echo "Flatpaks, to add" >> /home/$USER/bin/Programs.csv
-    echo "Flatpaks, to remove" >> /home/$USER/bin/Programs.csv
+    touch /home/$USER/bin/Programs_install.txt
+    echo "Programs to install:" >> /home/$USER/bin/Programs_install.txt
+fi
+
+if [[ ! -f /home/$USER/bin/Programs_uninstall.txt ]]; then
+    # Create the Programs uninstall file if it does not already exist
+    touch /home/$USER/bin/Programs_uninstall.txt
+    echo "Programs to uninstall:" >> /home/$USER/bin/Programs_uninstall.txt
+fi
+
+if [[ ! -f /home/$USER/bin/Flatpaks_install.txt ]]; then
+    # Create the Flatpaks install file if it does not already exist
+    touch /home/$USER/bin/Flatpaks_install.txt
+    echo "Flatpaks to install:" >> /home/$USER/bin/Flatpaks_install.txt
 fi
 
 # Check if flatpak is already installed. If not, install it.
@@ -17,22 +25,26 @@ if ! command -v flatpak > /dev/null; then
     sudo apt-get install -y flatpak
 fi
 
-# Install programs and flatpaks listed in the Programs file
-while IFS="," read -r type name; do
-    if [[ $type == "Type" ]] || [[ $name == "Name" ]]; then
+# Install programs listed in Programs_install.txt
+while read line; do
+    if [[ $line == "Programs to install:" ]]; then
         continue
     fi
-    if [[ $type == "Flatpaks" ]]; then
-        if [[ $name == "-*" ]]; then
-            flatpak uninstall -y ${name:1}
-        else
-            flatpak install -y $name
-        fi
-    else
-        if [[ $name == "-*" ]]; then
-            sudo apt-get remove -y ${name:1}
-        else
-            sudo apt-get install -y $name
-        fi
+    sudo apt-get install -y $line
+done < /home/$USER/bin/Programs_install.txt
+
+# Uninstall programs listed in Programs_uninstall.txt
+while read line; do
+    if [[ $line == "Programs to uninstall:" ]]; then
+        continue
     fi
-done < /home/$USER/bin/Programs.csv
+    sudo apt-get remove -y $line
+done < /home/$USER/bin/Programs_uninstall.txt
+
+# Install flatpaks listed in Flatpaks_install.txt
+while read line; do
+    if [[ $line == "Flatpaks to install:" ]]; then
+        continue
+    fi
+    flatpak install -y $line
+done < /home/$USER/bin/Flatpaks_install.txt
