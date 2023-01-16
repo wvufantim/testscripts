@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo apt-get update -y && sudo apt-get dist-upgrade -y
+
 if [[ ! -f /home/$USER/bin/Programs_install.txt ]]; then
     # Create the Programs install file if it does not already exist
     mkdir -p /home/$USER/bin
