@@ -1,16 +1,14 @@
 #!/bin/bash
 
-if [[ ! -f /home/$USER/bin/Programs ]]; then
+if [[ ! -f /home/$USER/bin/Programs.csv ]]; then
     # Create the Programs file if it does not already exist
     mkdir -p /home/$USER/bin
-    touch /home/$USER/bin/Programs
-    echo "Programs to add:" >> /home/$USER/bin/Programs
-    echo "" >> /home/$USER/bin/Programs
-    echo "Programs to uninstall:" >> /home/$USER/bin/Programs
-    echo "" >> /home/$USER/bin/Programs
-    echo "Flatpaks to add:" >> /home/$USER/bin/Programs
-    echo "" >> /home/$USER/bin/Programs
-    echo "Flatpaks to uninstall:" >> /home/$USER/bin/Programs
+    touch /home/$USER/bin/Programs.csv
+    echo "Type, Name" >> /home/$USER/bin/Programs.csv
+    echo "Programs, to add" >> /home/$USER/bin/Programs.csv
+    echo "Programs, to remove" >> /home/$USER/bin/Programs.csv
+    echo "Flatpaks, to add" >> /home/$USER/bin/Programs.csv
+    echo "Flatpaks, to remove" >> /home/$USER/bin/Programs.csv
 fi
 
 # Check if flatpak is already installed. If not, install it.
@@ -20,21 +18,21 @@ if ! command -v flatpak > /dev/null; then
 fi
 
 # Install programs and flatpaks listed in the Programs file
-while read line; do
-    if [[ $line == "Programs to add:" ]] || [[ $line == "Programs to uninstall:" ]] || [[ $line == "Flatpaks to add:" ]] || [[ $line == "Flatpaks to uninstall:" ]]; then
+while IFS="," read -r type name; do
+    if [[ $type == "Type" ]] || [[ $name == "Name" ]]; then
         continue
     fi
-    if [[ $line == *".flatpak"* ]]; then
-        if [[ $line == "-"*".flatpak"* ]]; then
-            flatpak uninstall -y ${line:1}
+    if [[ $type == "Flatpaks" ]]; then
+        if [[ $name == "-*" ]]; then
+            flatpak uninstall -y ${name:1}
         else
-            flatpak install -y $line
+            flatpak install -y $name
         fi
     else
-        if [[ $line == "-"* ]]; then
-            sudo apt-get remove -y ${line:1}
+        if [[ $name == "-*" ]]; then
+            sudo apt-get remove -y ${name:1}
         else
-            sudo apt-get install -y $line
+            sudo apt-get install -y $name
         fi
     fi
-done < /home/$USER/bin/Programs
+done < /home/$USER/bin/Programs.csv
