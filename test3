@@ -46,4 +46,9 @@ while read line; do
     continue
   fi
     flatpak install -y $line
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to install $line"
+    else
+        echo "Success: $line installed"
+    fi
 done < /home/$USER/bin/Flatpaks_install.txt
