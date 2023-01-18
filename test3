@@ -2,21 +2,12 @@
 
 sudo apt-get update -y && sudo apt-get dist-upgrade -y
 
-if [[ ! -f /home/$USER/bin/Programs_install.txt ]]; then
-    # Create the Programs install file if it does not already exist
-    mkdir -p /home/$USER/bin
-    touch /home/$USER/bin/Programs_install.txt
-fi
+mkdir -p /home/$USER/bin/Programs
 
-if [[ ! -f /home/$USER/bin/Programs_uninstall.txt ]]; then
-    # Create the Programs uninstall file if it does not already exist
-    touch /home/$USER/bin/Programs_uninstall.txt
-fi
-
-if [[ ! -f /home/$USER/bin/Flatpaks_install.txt ]]; then
-    # Create the Flatpaks install file if it does not already exist
-    touch /home/$USER/bin/Flatpaks_install.txt
-fi
+# Download the files from the repository
+wget https://raw.githubusercontent.com/wvufantim/LMprograms/master/Programs_install -O /home/$USER/bin/Programs/Programs_install
+wget https://raw.githubusercontent.com/wvufantim/LMprograms/master/Programs_uninstall -O /home/$USER/bin/Programs/Programs_uninstall
+wget https://raw.githubusercontent.com/wvufantim/LMprograms/master/Flatpaks_install -O /home/$USER/bin/Programs/Flatpaks_install
 
 # Check if flatpak is already installed. If not, install it.
 if ! command -v flatpak > /dev/null; then
@@ -24,23 +15,23 @@ if ! command -v flatpak > /dev/null; then
     sudo apt-get install -y flatpak
 fi
 
-# Install programs listed in Programs_install.txt
+# Install programs listed in Programs_install
 while read line; do
   if [ -z "$line" ]; then
     continue
   fi
     sudo apt-get install -y $line
-done < /home/$USER/bin/Programs_install.txt
+done < /home/$USER/bin/Programs/Programs_install
 
-# Uninstall programs listed in Programs_uninstall.txt
+# Uninstall programs listed in Programs_uninstall
 while read line; do
   if [ -z "$line" ]; then
     continue
   fi
-    sudo apt-get remove -y $line
-done < /home/$USER/bin/Programs_uninstall.txt
+    sudo apt-get purge -y $line
+done < /home/$USER/bin/Programs/Programs_uninstall
 
-# Install flatpaks listed in Flatpaks_install.txt
+# Install flatpaks listed in Flatpaks_install
 while read line; do
   if [ -z "$line" ]; then
     continue
@@ -51,4 +42,4 @@ while read line; do
     else
         echo "Success: $line installed"
     fi
-done < /home/$USER/bin/Flatpaks_install.txt
+done < /home/$USER/bin/Programs/Flatpaks_install
