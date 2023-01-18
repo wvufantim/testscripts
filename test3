@@ -45,7 +45,7 @@ while read line; do
   if [ -z "$line" ]; then
     continue
   fi
-    flatpak install -y $line
+    flatpak install -y $line >/dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo "Error: Failed to install $line"
     else
