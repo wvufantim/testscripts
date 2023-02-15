@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Add the Linux Mint repository
-sudo add-apt-repository 'deb http://packages.linuxmint.com/ ulyana main upstream import'
+sudo add-apt-repository 'deb http://packages.linuxmint.com/ ulyssa main upstream import'
+sudo add-apt-repository 'deb http://packages.linuxmint.com/ ulyssa-backport main import'
+sudo add-apt-repository 'deb http://packages.linuxmint.com/ ulyssa-upstream main'
 
 # Add the Flatpak repository
 sudo add-apt-repository ppa:alexlarsson/flatpak
