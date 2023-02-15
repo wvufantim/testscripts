@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Add the Linux Mint repository
+sudo add-apt-repository 'deb http://packages.linuxmint.com/ ulyana main upstream import'
+
+# Add the Flatpak repository
+sudo add-apt-repository ppa:alexlarsson/flatpak
+
+# Add the Linux Mint key
+wget https://packages.linuxmint.com/pool/main/l/linuxmint-keyring/linuxmint-keyring_2021.01.20_all.deb
+sudo apt install ./linuxmint-keyring_2021.01.20_all.deb
+
+# Update the package list
+sudo apt update
+
+# Install Flatpak
+sudo apt install flatpak
+
+# Add the Flathub repository
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# Uninstall snapd and any snap packages
+sudo apt remove snapd
+sudo apt autoremove
+
+# Remove the remaining directories created by snap
+sudo rm -rf /snap
+sudo rm -rf /var/snap
+sudo rm -rf /var/lib/snapd
+
+# Configure Discovery to recognize Flatpaks
+sudo apt install gnome-software-plugin-flatpak
