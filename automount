@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Function to check if a drive is already mounted
+is_mounted() {
+    mount | grep "$1" > /dev/null 2>&1
+}
+
+# Find unmounted drives and gather information
+unmounted_drives=$(lsblk | grep -v 'loop' | grep -v 'sr' | awk '$1 ~ /^\/dev\/.*/ && $7 == "" { print $1 }')
+
+for drive in $unmounted_drives; do
+    # Get filesystem type
+    fs_type=$(blkid -o value -s TYPE $drive)
+
+    # Prompt for mount point
+    read -p "Enter mount point for $drive ($fs_type): " mount_point
+
+    # Check if mount point is valid and not already mounted
+    if [ -z "$mount_point" ] || [ -d "$mount_point" ] || is_mounted "$mount_point" ; then
+        echo "Invalid mount point or already mounted. Skipping."
+        continue
+    fi
+
+    # Confirm information
+    read -p "Mount $drive on $mount_point as $fs_type? (y/n): " confirm
+    if [[ $confirm =~ ^[Yy]$ ]]; then
+        # Add to fstab
+        echo "$drive $mount_point $fs_type defaults 0 2" | sudo tee -a /etc/fstab
+
+        # Mount the drive
+        sudo mount $mount_point
+        echo "Device $drive mounted on $mount_point."
+    else
+        echo "Mounting canceled."
+    fi
+done
