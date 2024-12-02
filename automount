@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 # Function to check if a drive is already mounted
 is_mounted() {
@@ -36,6 +36,3 @@ if [[ $confirm =~ ^[Yy]$ ]]; then
     else
         echo "Failed to mount $target_device. Please check the device and mount point."
     fi
-else
-    echo "Mounting canceled."
-fi
