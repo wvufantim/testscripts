@@ -5,32 +5,37 @@ is_mounted() {
     mount | grep "$1" > /dev/null 2>&1
 }
 
-# Find unmounted drives and gather information
-unmounted_drives=$(lsblk | grep -v 'loop' | grep -v 'sr' | awk '$1 ~ /^\/dev\/.*/ && $7 == "" { print $1 }')
+# Set the target device
+target_device="/dev/sdb1"
 
-for drive in $unmounted_drives; do
-    # Get filesystem type
-    fs_type=$(blkid -o value -s TYPE $drive)
+# Get filesystem type
+fs_type=$(blkid -o value -s TYPE $target_device)
 
-    # Prompt for mount point
-    read -p "Enter mount point for $drive ($fs_type): " mount_point
+# Prompt for mount point
+read -p "Enter desired mount point for $target_device ($fs_type): " mount_point
 
-    # Check if mount point is valid and not already mounted
-    if [ -z "$mount_point" ] || [ -d "$mount_point" ] || is_mounted "$mount_point" ; then
-        echo "Invalid mount point or already mounted. Skipping."
-        continue
-    fi
+# Create the mount point directory
+sudo mkdir -p "$mount_point"
 
-    # Confirm information
-    read -p "Mount $drive on $mount_point as $fs_type? (y/n): " confirm
-    if [[ $confirm =~ ^[Yy]$ ]]; then
-        # Add to fstab
-        echo "$drive $mount_point $fs_type defaults 0 2" | sudo tee -a /etc/fstab
+# Check if mount point is already mounted
+if is_mounted "$mount_point" ; then
+    echo "Mount point $mount_point is already mounted. Skipping."
+    exit 1
+fi
 
-        # Mount the drive
-        sudo mount $mount_point
-        echo "Device $drive mounted on $mount_point."
+# Confirm information
+read -p "Mount $target_device on $mount_point as $fs_type? (y/n): " confirm
+if [[ $confirm =~ ^[Yy]$ ]]; then
+    # Add to fstab
+    echo "$target_device $mount_point $fs_type defaults 0 2" | sudo tee -a /etc/fstab
+
+    # Mount the drive
+    sudo mount $mount_point
+    if [ $? -eq 0 ]; then
+        echo "Device $target_device mounted on $mount_point."
     else
-        echo "Mounting canceled."
+        echo "Failed to mount $target_device. Please check the device and mount point."
     fi
-done
+else
+    echo "Mounting canceled."
+fi
