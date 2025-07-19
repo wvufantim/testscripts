@@ -1,0 +1,32 @@
+#!/bin/bash
+
+echo "RUNNING UPDATE 1.2 SCRIPT...."
+
+sudo echo "UPDATING PACKAGE INFO & PERFORMING FULL SYSTEM UPDATE...."
+
+sudo dnf update -y
+
+echo "CHECKING TO SEE IF FLATPAK AND SNAP ARE INSTALLED"
+
+if command -v flatpak &> /dev/null; then
+  echo "FLATPAK INSTALLED. UPDATING FLATPAKS...."
+  flatpak update -y
+else
+  echo "FLATPAK IS NOT INSTALLED. SKIPPING UPDATE."
+fi
+
+echo ""
+
+if command -v snap &> /dev/null; then
+  echo "SNAP IS INSTALLED. UPDATING...."
+  sudo snap refresh
+else
+  echo "SNAP IS NOT INSTALLED. SKIPPING UPDATE"
+fi
+
+echo "REMOVING UNNEEDED PACKAGE FILES & CLEANING UP OLD FILES...."
+sudo dnf autoremove -y
+sudo dnf remove --duplicates -y
+sudo dnf clean all
+
+echo "SYSTEM UPDATE COMPLETE!"
